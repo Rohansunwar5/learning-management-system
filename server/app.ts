@@ -17,6 +17,8 @@ app.use(cors({
   origin: process.env.ORIGIN
 }));
 
+// routes
+
 // testing routes
 app.get('/test', (req:Request,res:Response,next:NextFunction)=> {
   res.status(200).json({
