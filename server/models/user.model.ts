@@ -1,6 +1,8 @@
+require('dotenv').config();
 import mongoose, {Document, Model, Schema} from "mongoose";
 import bcrypt from 'bcryptjs';
 import { Mode } from "fs";
+import jwt from 'jsonwebtoken'
 
 const emailRegexPattern: RegExp = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
 
@@ -15,7 +17,9 @@ export interface IUser extends Document{
   role: string;
   isVerified: boolean;
   courses: Array <{courseId: string}>;
-  comparePassword: (password: string) => Promise<boolean>;  
+  comparePassword: (password: string) => Promise<boolean>; 
+  SignAccessToken: () => string;
+  SignRefreshToken: () => string;
 }
 
 const userSchema : Schema<IUser> = new mongoose.Schema({
@@ -70,6 +74,15 @@ userSchema.pre<IUser>("save",async function (next){
   this.password = await bcrypt.hash(this.password, 10);
   next();
 })
+
+//sign access token 
+userSchema.methods.SignAccessToken = function (){
+  return jwt.sign({id:this._id}, process.env.ACCESS_TOKEN || '');
+}
+
+userSchema.methods.SignRefreshToken = function(){
+  return jwt.sign({id:this._id}, process.env.REFRESH_TOKEN || '');
+}
 
 //compare password
 userSchema.methods.comparePassword = async function(enteredPassword: string): Promise<boolean>{ // Promise<boolean>: for explicitely returning the value as true or false, if not stated it could have taken it as Promise<any> or Promise <unkown> which could have lead to error or ambiguity in the code 

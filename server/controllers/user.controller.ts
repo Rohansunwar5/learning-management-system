@@ -1,13 +1,13 @@
 require('dotenv').config();
 import { Request, Response, NextFunction } from "express";
-import userModel from "../models/user.model";
+import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
-import { error } from "console";
 import  jwt ,{Secret}  from "jsonwebtoken";
 import ejs from 'ejs';
 import path from "path";
 import sendMail from "../utils/sendMail";
+import { error } from "console";
 
 //register user
 
@@ -80,3 +80,76 @@ export const createActivationToken = (user: any): IActivationToken => {
   })
   return {token, activationCode};
 }
+
+//activate user 
+
+interface IActivationRequest{
+  activation_token: string;
+  activation_code: string;
+}
+
+export const activateUser = CatchAsyncError(async(req:Request, res:Response, next:NextFunction ) => {
+  try {
+    const {activation_token, activation_code} = req.body as IActivationRequest;
+    const newUser: {user: IUser; activationCode : string} = jwt.verify(
+      activation_token,
+      process.env.ACTIVATION_SECRET as string
+      ) as {user: IUser; activationCode:string};
+
+    if(newUser.activationCode !== activation_code){
+      return next(new ErrorHandler("Invalid activation code", 400));
+    }
+
+    const {name, email, password} = newUser.user;
+    const existUser = await userModel.findOne({email});    
+
+    if(existUser){
+      return next(new ErrorHandler("User already exist", 400));
+    }
+
+    const user = await userModel.create({
+      name,
+      email, 
+      password,
+    })
+
+    res.status(201).json({
+      success: true
+    })
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+// login user 
+
+interface ILoginRequest {
+  email: string,
+  password: string,
+}
+
+export const loginUser = CatchAsyncError(async(req:Request, res:Response, next:NextFunction) => {
+  try{
+    const {email, password } = req.body as ILoginRequest;
+
+    if(!(email || password)){
+      return next(new ErrorHandler("Please enter your email and password",401))
+    };
+
+    const user = await userModel.findOne({email}).select("+password"); // +password so that mongoose send the other fields also in the document
+    
+    if(!user){
+      return next(new ErrorHandler("Invalid email or password ", 401))
+    }
+
+    const isPasswordMatch = await user.comparePassword(password);
+
+    if(!isPasswordMatch){
+      return next(new ErrorHandler("Invalid email or  password",401)); // if everything is okay well send them to another function
+    }
+  }
+  catch{
+
+  }
+})
