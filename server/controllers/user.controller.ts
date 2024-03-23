@@ -8,6 +8,7 @@ import ejs from 'ejs';
 import path from "path";
 import sendMail from "../utils/sendMail";
 import { error } from "console";
+import { sendToken } from "../utils/jwt";
 
 //register user
 
@@ -146,10 +147,13 @@ export const loginUser = CatchAsyncError(async(req:Request, res:Response, next:N
     const isPasswordMatch = await user.comparePassword(password);
 
     if(!isPasswordMatch){
-      return next(new ErrorHandler("Invalid email or  password",401)); // if everything is okay well send them to another function
+      return next(new ErrorHandler("Invalid email or  password",401)); 
     }
-  }
-  catch{
+    // if everything is okay well send them to another function
+    sendToken(user, 200,res);
 
+  }
+  catch(error:any){
+    return next(new ErrorHandler(error.message, 400));
   }
 })
