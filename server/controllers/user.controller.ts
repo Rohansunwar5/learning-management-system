@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
-import  jwt ,{Secret}  from "jsonwebtoken";
+import  jwt ,{JwtPayload, Secret}  from "jsonwebtoken";
 import ejs from 'ejs';
 import path from "path";
 import sendMail from "../utils/sendMail";
@@ -175,6 +175,19 @@ export const logoutUser = CatchAsyncError(async(req:Request, res:Response, next:
     })
 
   } catch (error:any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+// update access token 
+// since our acces token is expiring after every 5 mins we need to update access token
+export const updateAccessToken = CatchAsyncError(async(req:Request,res:Response,next:NextFunction) => {
+  try {
+
+    const refresh_token = req.cookies.refresh_token as string;
+    const decode = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET as string) as JwtPayload;
+    
+  } catch (error: any) {
     return next(new ErrorHandler(error.message, 400));
   }
 })

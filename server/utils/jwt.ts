@@ -28,7 +28,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     const accessTokenOptions: ITokenOptions = {
       expires: new Date(Date.now() + accessTokenExpire * 1000),
       maxAge: accessTokenExpire * 1000,
-      httpOnly: true,
+      httpOnly: true, // if set to true, the cookie cannot be accessed via JavaScript on the client side. This is a security measure to prevent cross-site scripting (XSS) attacks.
       sameSite: 'lax',
     };
 
@@ -45,7 +45,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
       refreshTokenOptions.secure = true;
     }
 
-    res.cookie("access_token", accessToken, accessTokenOptions);
+    res.cookie("access_token", accessToken, accessTokenOptions);// Sets the access token in a cookie with the specified options.
     res.cookie("refresh_token", refreshToken, refreshTokenOptions);
 
     res.status(statusCode).json({
