@@ -8,8 +8,9 @@ import ejs from 'ejs';
 import path from "path";
 import sendMail from "../utils/sendMail";
 import { error } from "console";
-import { sendToken } from "../utils/jwt";
+import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
+import { getUserById } from "../services/user.service";
 
 //register user
 
@@ -185,9 +186,52 @@ export const updateAccessToken = CatchAsyncError(async(req:Request,res:Response,
   try {
 
     const refresh_token = req.cookies.refresh_token as string;
-    const decode = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET as string) as JwtPayload;
+    const decode = jwt.verify(refresh_token, process.env.REFRESH_TOKEN as string) as JwtPayload;
+
+    const message = "Could not refresh token";
+
+    if(!decode){
+      return next(new ErrorHandler(message, 400));
+    }
     
+    const session = await redis.get(decode.id as string);
+
+    if(!session){
+      return next(new ErrorHandler(message, 400));
+    }
+
+    const user = JSON.parse(session);
+
+    const accessToken = jwt.sign({id: user._id}, process.env.ACCESS_TOKEN as string, {
+      expiresIn:"5m",
+    });
+
+    const refreshToken = jwt.sign({id:user._id}, process.env.REFRESH_TOKEN as string ,{
+      expiresIn: '7d',
+    })
+
+    res.cookie("access_token", accessToken, accessTokenOptions)
+    res.cookie("refresh_token", refreshToken, refreshTokenOptions)
+
+    // send response 
+    res.status(200).json({
+      status: "success",
+      accessToken,
+    })
+    
+
   } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})
+
+// get user info 
+
+export const getUserInfo = CatchAsyncError(async(req:Request,res:Response,next:NextFunction) => {
+  try {
+    const userId = req.user?._id;
+    getUserById(userId, res);
+  } catch (error:any) {
     return next(new ErrorHandler(error.message, 400));
   }
 })
