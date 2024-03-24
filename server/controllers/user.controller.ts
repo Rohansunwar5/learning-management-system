@@ -9,6 +9,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import { error } from "console";
 import { sendToken } from "../utils/jwt";
+import { redis } from "../utils/redis";
 
 //register user
 
@@ -160,8 +161,14 @@ export const loginUser = CatchAsyncError(async(req:Request, res:Response, next:N
 
 export const logoutUser = CatchAsyncError(async(req:Request, res:Response, next:NextFunction) => {
   try {
-    res.cookie("access_token", "",{maxAge: 1});
-    res.cookie("refresh_token", "",{maxAge: 1});
+    res.cookie("access_token","",{maxAge: 1});
+    res.cookie("refresh_token","",{maxAge: 1});
+    
+    // while logginf out delete cache from redis
+    const userId = req.user?._id || "";
+    redis.del(userId);
+    
+    
     res.status(200).json({
       success: true,
       message: "Logged out successfully"
