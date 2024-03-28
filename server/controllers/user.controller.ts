@@ -7,7 +7,6 @@ import  jwt ,{JwtPayload, Secret}  from "jsonwebtoken";
 import ejs from 'ejs';
 import path from "path";
 import sendMail from "../utils/sendMail";
-import { error } from "console";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
