@@ -359,3 +359,50 @@ export const addReview = CatchAsyncError(async(req:Request,res:Response,next:Nex
     return next(new ErrorHandler(error.message, 500));
 }
 })
+
+// add reply in review. -- only admin can reply to review 
+interface IAddReviewData {
+  comment : string;
+  courseId: string;
+  reviewId: string;
+}
+
+
+export const addReplyToReview = CatchAsyncError(async(req:Request,res:Response,next:NextFunction) => {
+  try {
+    const {comment, courseId, reviewId} = req.body as IAddReviewData;
+
+    const course = await CourseModel.findById(courseId);
+
+    if(!course){
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    const review = course?.reviews?.find((rev: any) => rev._id.toString() === reviewId);
+
+    if(!review){
+      return next(new ErrorHandler("Review not found", 404));
+    }
+
+    const replyData: any = {
+      user: req.user,
+      comment,
+    }
+
+    if(!review.commentReplies){ // when the comment replies are empty  initialize it with an array
+      review.commentReplies = [];
+    }
+
+    review.commentReplies?.push(replyData);    
+
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      course,
+    })
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+})
