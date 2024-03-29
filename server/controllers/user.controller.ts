@@ -39,7 +39,10 @@ export const registrationUser = CatchAsyncError(async(req:Request, res:Response,
     const activationToken = createActivationToken(user);
     const activationCode = activationToken.activationCode; // since the activationToken from the method comes as the object we pass the activationCode to elemnt inside the method to get the value
 
-    const data = {user: {name:user.name}, activationCode};
+    const data = {
+      user: {name:user.name}, 
+      activationCode
+    };
     const html = await ejs.renderFile(path.join(__dirname, "../mails/activation-mail.ejs"), data);
 
 
