@@ -9,6 +9,7 @@ import { redis } from "../utils/redis";
 import mongoose from "mongoose";
 import path from "path";
 import sendMail from "../utils/sendMail";
+import NotificationModel from "../models/notification.model";
 
 // upload course 
 export const uploadCourse = CatchAsyncError(async(req:Request,res:Response,next:NextFunction) => {
@@ -209,6 +210,12 @@ export const addQuestion = CatchAsyncError(async(req:Request,res:Response,next:N
     // add this question to our course content
     courseContent.questions.push(newQuestion);
 
+    await NotificationModel.create({
+      user: req.user?._id,
+      title: "New Question Recieved",
+      message: `You have a new question from ${courseContent.title}`,
+    });
+
     // save the update course 
     await course?.save();
 
@@ -265,7 +272,11 @@ export const addAnswer = CatchAsyncError(async (req: Request, res: Response, nex
       await course?.save();
 
       if (req.user?._id === question.user?._id) {
-          // TODO: create a notification
+        await NotificationModel.create({
+          user: req.user?._id,
+          title: "New Question Reply",
+          message: `You have a new question from ${courseContent.title}`,
+        });
       } else {
           const data = {
               name: question.user.name,
@@ -343,12 +354,16 @@ export const addReview = CatchAsyncError(async(req:Request,res:Response,next:Nex
 
     await course?.save();
 
-    const notification = {
-      title: "New Review Recieved",
-      message: `${req.user?.name} has left a review on ${course?.name}`
-    }
+    // const notification = {
+    //   title: "New Review Recieved",
+    //   message: `${req.user?.name} has left a review on ${course?.name}`
+    // }
 
-    // TODO: create notification 
+    await NotificationModel.create({
+      user: req.user?._id,
+      title: "New Review Recieved",
+      message: `${req.user?._id} has left a review on  ${course?.name}`,
+    });
 
     res.status(200).json({
       success: true,
