@@ -24,3 +24,14 @@ export const getAllUsersService = async(res: Response) => {
     users,
   })
 }
+
+// update user role 
+export const updateUserRoleService = async(res:Response,id:string, role:string ) => {
+  const user = await userModel.findByIdAndUpdate(id, {role:role}, {new:true});
+  //{new:true}ensures that the updated document is returned. Without this option, the returned user would be the old document.
+
+  res.status(201).json({
+    success:true,
+    user,
+  })
+}
