@@ -10,6 +10,7 @@ import courseRouter from "./routes/course.routes";
 import orderRouter from "./routes/order.routes";
 import notificationRouter from "./routes/notification.routes";
 import analyticsRouter from "./routes/analytics.routes";
+import layoutRouter from "./routes/layout.routes";
 
 //body parser
 app.use(express.json({ limit: "50mb" })); // to support JSON-encoded bodies
@@ -31,7 +32,8 @@ app.use(
   orderRouter,
   courseRouter,
   notificationRouter,
-  analyticsRouter
+  analyticsRouter,
+  layoutRouter
 );
 
 // app.use("/api/v1", courseRouter);
