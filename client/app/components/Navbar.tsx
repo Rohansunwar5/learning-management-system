@@ -5,16 +5,20 @@ import { HoveredLink, Menu, MenuItem, ProductItem } from "./ui/navbar-menu";
 import { cn } from "@/app/utils/cn";
 import Link from "next/link";
 import { ThemeSwitcher } from "../utils/ThemeSwitcher";
-// import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { HiOutlineUserCircle } from "react-icons/hi2";
+import CustomModal from "../utils/CustomModal";
+import Login from '../components/Auth/Login'
+import SignUp from '../components/Auth/SignUp'
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
   activeItem: number;
+  route:string;
+  setRoute: (route: string) => void;
 };
 
-const Navbar = ({ className, open, setOpen, activeItem }: Props & { className?: string }) => {
+const Navbar = ({className, open, setOpen, setRoute ,activeItem, route}: Props & { className?: string }) => {
   const [active, setActive] = useState<string | null>(null);
 
   return (
@@ -74,15 +78,41 @@ const Navbar = ({ className, open, setOpen, activeItem }: Props & { className?: 
           onClick={() => setOpen(true)} // Toggle the open state
         />
         <ThemeSwitcher />
-        {/* only for mobile */}
-        {/* <div className="80px:hidden">
-            <HiOutlineMenuAlt3 
-              size={25}
-              className="cursor-pointer dark:text-white text-black"
-              onClick={() => setOpenSider(true)}
-            />
-          </div> */}
       </Menu>
+      {
+        route === "Login" && (
+          <>
+            {
+              open && (
+                <CustomModal 
+                  open={open}
+                  setOpen={setOpen}
+                  setRoute={setRoute}
+                  activeItem={activeItem}
+                  component={Login}
+                />
+              )
+            }
+          </>
+        )
+      }
+      {
+        route === "Sign-Up" && (
+          <>
+            {
+              open && (
+                <CustomModal 
+                  open={open}
+                  setOpen={setOpen}
+                  setRoute={setRoute}
+                  activeItem={activeItem}
+                  component={SignUp}
+                />
+              )
+            }
+          </>
+        )
+      }
     </div>
   );
 };
