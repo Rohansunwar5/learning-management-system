@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux'
 import Image from "next/image";
 import avatar from '../../public/global/avatar.png'
 import { useSession } from "next-auth/react";
-import { useSocailAuthMutation } from "@/redux/features/auth/authApi";
+import { useLogOutQuery, useSocailAuthMutation } from "@/redux/features/auth/authApi";
 import { toast } from "react-hot-toast";
 
 type Props = {
@@ -30,6 +30,10 @@ const Navbar = ({className, open, setOpen, setRoute ,activeItem, route}: Props &
   const {user} = useSelector((state:any) => state.auth) // getting logged in user data 
   const {data} = useSession(); //for social authentication 
   const [socialAuth, {isSuccess, error}] = useSocailAuthMutation();
+  const [logout, setLogout] = useState(false);
+  const {} = useLogOutQuery(undefined, {
+    skip: !logout ? true : false,
+  });
 
   useEffect(() => {
     if(!user){
@@ -41,13 +45,16 @@ const Navbar = ({className, open, setOpen, setRoute ,activeItem, route}: Props &
         })
       }
     }
-    if(isSuccess){
-      toast.success("Login Successfull")
+    if(data === null  ){
+      if(isSuccess){
+        toast.success("Login Successfull")
+      }
+    }
+    if(data === null){// when session is removed 
+      setLogout(true);
     }
   }, [data,user])
 
-  // console.log(user);
-  // console.log(data);
   
   return (
     <div className={cn("fixed top-10 inset-x-0 max-w-2xl mx-auto z-50", className)}>
