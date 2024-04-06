@@ -6,6 +6,10 @@ import { ThemeProvider } from "./utils/theme-provider";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { AppProvider } from "./AppProvider";
+import { SessionProvider } from "next-auth/react";
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import Loader from './components/Loader/Loader'
+
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -28,13 +32,28 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${poppins.variable}${josefin.variable} !bg-white bg-no-repeat dark:bg-gradient-to-b dark:from-gray-900 dark:to-black duration-300`}>
        <AppProvider>
+        <SessionProvider>
+
        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        {children}
+        <Custom>{children}</Custom>
         <Toaster position="top-center" reverseOrder={true}/>
        </ThemeProvider>
+        </SessionProvider>
        </AppProvider>
         
       </body>
     </html>
   );
+}
+
+
+const Custom: React.FC<{children:React.ReactNode}> = ({children}) => {
+  const {isLoading} = useLoadUserQuery({});
+  return (
+    <>
+    {
+      isLoading ? <Loader /> : <>{children}</>
+    }
+    </>
+  )
 }
