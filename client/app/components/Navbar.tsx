@@ -10,7 +10,9 @@ import CustomModal from "../utils/CustomModal";
 import Login from '../components/Auth/Login'
 import SignUp from '../components/Auth/SignUp'
 import Verification from '../components/Auth/Verification'
-
+import { useSelector } from 'react-redux'
+import Image from "next/image";
+import avatar from '../../public/global/avatar.png'
 
 type Props = {
   open: boolean;
@@ -22,7 +24,10 @@ type Props = {
 
 const Navbar = ({className, open, setOpen, setRoute ,activeItem, route}: Props & { className?: string }) => {
   const [active, setActive] = useState<string | null>(null);
+  const {user} = useSelector((state:any) => state.auth) // getting logged in user data 
 
+  console.log(user);
+  
   return (
     <div className={cn("fixed top-10 inset-x-0 max-w-2xl mx-auto z-50", className)}>
       <Menu setActive={setActive}>
@@ -74,11 +79,23 @@ const Navbar = ({className, open, setOpen, setRoute ,activeItem, route}: Props &
         {/* <Link href={'/faq'}>
           <MenuItem setActive={setActive} active={active} item="FAQ"></MenuItem>
         </Link> */}
-        <HiOutlineUserCircle
-          size={25}
-          className="cursor-pointer dark:text-white text-black"
-          onClick={() => setOpen(true)} // Toggle the open state
-        />
+        {
+          user ? (
+            <Link href={'/profile'}>
+              <Image 
+                src={user.avatar ? user.avatar : avatar}
+                alt=""
+                className="w-[30px] h-[30px] rounded-full cursor-pointer"
+              />
+            </Link>
+          ) : (
+           <HiOutlineUserCircle 
+            size={25}
+            className="hidden 800px:block cursor-pointer dark:text-white text-black"
+            onClick={() => setOpen(true)}
+           /> 
+          )
+        }
         <ThemeSwitcher />
       </Menu>
       {
