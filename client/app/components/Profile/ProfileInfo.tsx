@@ -8,6 +8,7 @@ import {
   useUpdateAvatarMutation,
 } from "@/redux/features/user/userApi";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import { toast } from "react-hot-toast";
 
 type Props = {
   avatar: string | null;
@@ -41,6 +42,9 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
     if (error || updateError) {
       console.log(error);
     }
+    if (success) {
+      toast.success("Profile update Successfully ");
+    }
   }, [isSuccess, error, success, updateError]);
 
   const handleSubmit = async (e: any) => {
@@ -51,7 +55,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
       });
     }
   };
-
+  // TODO: give a toast when user profile update successfully
   return (
     <>
       <div className="w-full flex pt-20 justify-center">
