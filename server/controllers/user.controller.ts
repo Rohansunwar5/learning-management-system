@@ -363,7 +363,7 @@ export const updatePassword = CatchAsyncError(
       }
 
       const user = await userModel.findById(req.user?._id).select("+password");
-      // .select because in the user model we have taken select as falsse
+      // .select because in the user model we have taken select as false
 
       if (user?.password === undefined) {
         return next(new ErrorHandler("Invalid user", 400));
