@@ -20,7 +20,7 @@ const page: FC<Props> = (props: Props) => {
         {" "}
         {/* checking if the user is authenticated before redirecting to the profile page*/}
         <Heading
-          title={`${user?.name} profile`}
+          title={`${user?.name} profile - Eduception`}
           description="Eduception is a innovative learning platform for students to lern and get help from their course mentors"
           keywords="Programming, MERN, React, Nextjs, Maching Lerning/AI"
         />
