@@ -5,7 +5,6 @@ import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography } from "@mui/material";
 import "react-pro-sidebar/dist/css/styles.css";
 import { useTheme } from "next-themes";
-
 import {
   HomeOutlinedIcon,
   ArrowForwardIosIcon,
@@ -50,7 +49,7 @@ const Item: FC<itemProps> = ({ title, to, icon, selected, setSelected }) => {
   );
 };
 
-const AdminSidebar = () => {
+const Sidebar = () => {
   const { user } = useSelector((state: any) => state.auth);
   const [logout, setlogout] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -72,7 +71,7 @@ const AdminSidebar = () => {
       sx={{
         "& .pro-sidebar-inner": {
           background: `${
-            theme === "dark" ? "111C43 !important" : "#fff !important"
+            theme === "dark" ? "#111C43 !important" : "#fff !important"
           }`,
         },
         "& .pro-icon-wrapper": {
@@ -81,7 +80,10 @@ const AdminSidebar = () => {
         "& .pro-inner-item:hover": {
           color: "#868dfb !important",
         },
-        "& .pro-menu-tem.active": {
+        "& .pro-menu-item.active": {
+          color: "#6870fa !important",
+        },
+        "& .pro-inner-item": {
           padding: "5px 35px 5px 20px !important",
           opacity: 1,
         },
@@ -89,7 +91,7 @@ const AdminSidebar = () => {
           color: `${theme !== "dark" && "#000"}`,
         },
       }}
-      className="!bg-white dark:bg-[#111C43]"
+      className="!bg-white dark:bg-[#2f4ebd]"
     >
       <ProSidebar
         collapsed={isCollapsed}
@@ -117,7 +119,7 @@ const AdminSidebar = () => {
                 ml="15px"
               >
                 <Link href="/">
-                  <h3 className="text-[25px] font-Poppins uppercase dark:text-white text-black">
+                  <h3 className="text-[25px] font-light dark:text-white text-black">
                     Eduception
                   </h3>
                 </Link>
@@ -135,8 +137,8 @@ const AdminSidebar = () => {
               <Box display="flex" justifyContent="center" alignItems="center">
                 <Image
                   alt="profile-user"
-                  width={100}
-                  height={100}
+                  width={70}
+                  height={70}
                   src={user.avatar ? user.avatar.url : avatarDefault}
                   style={{
                     cursor: "pointer",
@@ -163,7 +165,7 @@ const AdminSidebar = () => {
               </Box>
             </Box>
           )}
-          <Box padding={isCollapsed ? undefined : "10%"}>
+          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
               to="/admin"
@@ -304,4 +306,4 @@ const AdminSidebar = () => {
   );
 };
 
-export default AdminSidebar;
+export default Sidebar;
