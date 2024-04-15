@@ -4,11 +4,13 @@ import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
 import CourseContent from "./CourseContent";
+import CoursePreview from "./CoursePreview";
+import { title } from "process";
 
 type Props = {};
 
 const CreateCourse = (props: Props) => {
-  const [active, setActive] = useState(2);
+  const [active, setActive] = useState(0);
   const [courseInfo, setCourseInfo] = useState({
     name: "",
     description: "",
@@ -38,7 +40,55 @@ const CreateCourse = (props: Props) => {
   ]);
   const [courseData, setCourseData] = useState({});
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    // format benefits array
+    const formattedBenefits = benefits.map((benefit) => ({
+      title: benefit.title,
+    }));
+
+    // format prerequisites array
+    const formattedPrerequisities = prerequisites.map((prerequisite) => ({
+      title: prerequisite.title,
+    }));
+
+    // format course content array
+    const formattedCourseContentData = courseContentData.map(
+      (courseContent) => ({
+        videoUrl: courseContent.videoUrl,
+        title: courseContent.title,
+        description: courseContent.description,
+        videoSection: courseContent.videoSection,
+        links: courseContent.links.map((link) => ({
+          title: link.title,
+          url: link.url,
+        })),
+        suggestion: courseContent.suggestion,
+      })
+    );
+
+    // prepare out data object
+    const data = {
+      name: courseInfo.name,
+      description: courseInfo.description,
+      price: courseInfo.price,
+      estimatedPrice: courseInfo.estimatedPrice,
+      tags: courseInfo.tags,
+      thumbnail: courseInfo.thumbnail,
+      level: courseInfo.level,
+      demoUrl: courseInfo.demoUrl,
+      benefits: formattedBenefits,
+      prerequisites: formattedPrerequisities,
+      courseContent: formattedCourseContentData,
+    };
+
+    setCourseData(data);
+  };
+  // console.log(courseData);
+  // console.log(CourseContent);
+
+  const handleCourseCreate = (e: any) => {
+    const data = courseData;
+  };
 
   return (
     <div className="w-full flex min-h-screen">
@@ -68,6 +118,14 @@ const CreateCourse = (props: Props) => {
             courseContentData={courseContentData}
             setCourseContentData={setCourseContentData}
             handleSubmit={handleSubmit}
+          />
+        )}
+        {active === 3 && (
+          <CoursePreview
+            active={active}
+            setActive={setActive}
+            courseData={courseData}
+            handleCourseCreate={handleCourseCreate}
           />
         )}
       </div>
