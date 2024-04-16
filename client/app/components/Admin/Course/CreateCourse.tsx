@@ -20,7 +20,7 @@ const CreateCourse = (props: Props) => {
   useEffect(() => {
     if (isSuccess) {
       toast.success("Course created successfully");
-      redirect("/admin/all-courses");
+      redirect("/admin/courses");
     }
     if (error) {
       if ("data" in error) {
