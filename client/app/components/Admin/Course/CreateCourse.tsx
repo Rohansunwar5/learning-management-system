@@ -1,15 +1,34 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
 import CourseContent from "./CourseContent";
 import CoursePreview from "./CoursePreview";
-import { title } from "process";
+import { useCreateCourseMutation } from "@/redux/features/courses/coursesApi";
+import { toast } from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 type Props = {};
 
 const CreateCourse = (props: Props) => {
+  const [createCourse, { isLoading, isSuccess, error }] =
+    useCreateCourseMutation();
+
+  //sending the recieved data
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Course created successfully");
+      redirect("/admin/all-courses");
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
+  }, [isLoading, isSuccess, error]);
   const [active, setActive] = useState(0);
   const [courseInfo, setCourseInfo] = useState({
     name: "",
@@ -86,8 +105,12 @@ const CreateCourse = (props: Props) => {
   // console.log(courseData);
   // console.log(CourseContent);
 
-  const handleCourseCreate = (e: any) => {
+  const handleCourseCreate = async (e: any) => {
     const data = courseData;
+    //setting is loading so that when the admin clicks multiple times also it only sends one request
+    if (!isLoading) {
+      await createCourse(data);
+    }
   };
 
   return (
