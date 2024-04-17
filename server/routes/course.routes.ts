@@ -67,9 +67,8 @@ courseRouter.put(
   addReplyToReview
 );
 
-courseRouter.put(
+courseRouter.get(
   "/get-allcourses",
-  updateAccessToken,
   isAuthenticated,
   authorizeRoles("admin"),
   getAllCoursesAdmin

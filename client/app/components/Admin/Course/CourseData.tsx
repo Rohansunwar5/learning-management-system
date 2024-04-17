@@ -84,7 +84,7 @@ const CourseData: FC<Props> = ({
       </div>
       <div>
         <label htmlFor="email" className={`${styles.label} text-[20px]`}>
-          What are the benefits for students in this course ?
+          What are the prerequisites for students for this course ?
         </label>
         <br />
         {prerequisities.map((prerequisities: any, index: number) => (
