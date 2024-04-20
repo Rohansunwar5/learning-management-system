@@ -24,6 +24,6 @@ layoutRouter.put(
   authorizeRoles("admin"),
   editLayout
 );
-layoutRouter.get("/data-layout", getLayoutByType);
+layoutRouter.get("/data-layout/:type", getLayoutByType);
 
 export default layoutRouter;
