@@ -11,6 +11,7 @@ import orderRouter from "./routes/order.routes";
 import notificationRouter from "./routes/notification.routes";
 import analyticsRouter from "./routes/analytics.routes";
 import layoutRouter from "./routes/layout.routes";
+import { rateLimit } from "express-rate-limit";
 
 //body parser
 app.use(express.json({ limit: "50mb" })); // to support JSON-encoded bodies
@@ -25,6 +26,14 @@ app.use(
     credentials: true,
   })
 );
+
+//api request limit
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+});
 
 // routes
 app.use(
@@ -62,5 +71,8 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
   err.statusCode = 404;
   next(err);
 });
+
+//middleware calls
+app.use(limiter);
 
 app.use(ErrorMiddleware);

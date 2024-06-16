@@ -19,6 +19,7 @@ import {
   useSocailAuthMutation,
 } from "@/redux/features/auth/authApi";
 import { toast } from "react-hot-toast";
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 
 type Props = {
   open: boolean;
@@ -38,6 +39,11 @@ const Navbar = ({
 }: Props & { className?: string }) => {
   const [active, setActive] = useState<string | null>(null);
   const { user } = useSelector((state: any) => state.auth); // getting logged in user data
+  const {
+    data: userData,
+    isLoading,
+    refetch,
+  } = useLoadUserQuery(undefined, {});
   const { data } = useSession(); //for social authentication
   const [socialAuth, { isSuccess, error }] = useSocailAuthMutation();
   const [logout, setLogout] = useState(false);
@@ -46,25 +52,27 @@ const Navbar = ({
   });
 
   useEffect(() => {
-    if (!user) {
-      if (data) {
-        socialAuth({
-          email: data?.user?.email,
-          name: data?.user?.name,
-          avatar: data.user?.image,
-        });
+    if (!isLoading) {
+      if (!userData) {
+        if (data) {
+          socialAuth({
+            email: data?.user?.email,
+            name: data?.user?.name,
+            avatar: data.user?.image,
+          });
+        }
+      }
+      if (data === null) {
+        if (isSuccess) {
+          toast.success("Login Successfull");
+        }
+      }
+      if (data === null && !isLoading && !userData) {
+        // when session is removed
+        setLogout(true);
       }
     }
-    if (data === null) {
-      if (isSuccess) {
-        toast.success("Login Successfull");
-      }
-    }
-    if (data === null) {
-      // when session is removed
-      setLogout(true);
-    }
-  }, [data, user]);
+  }, [data, isLoading, userData]);
 
   return (
     <div
@@ -78,54 +86,50 @@ const Navbar = ({
             item="Home"
           ></MenuItem>
         </Link>
-        <MenuItem setActive={setActive} active={active} item="Courses">
-          <div className="  text-sm grid grid-cols-2 gap-10 p-4">
-            <ProductItem
-              title="Mern Stack"
-              href="https://algochurn.com"
-              src="https://assets.aceternity.com/demos/algochurn.webp"
-              description="Prepare for tech interviews like never before."
-            />
-            <ProductItem
-              title="Tailwind Master"
-              href="https://tailwindmasterkit.com"
-              src="https://assets.aceternity.com/demos/tailwindmasterkit.webp"
-              description="Production ready Tailwind css components for your next project"
-            />
-            <ProductItem
-              title="Advance JavaScript"
-              href="https://gomoonbeam.com"
-              src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.51.31%E2%80%AFPM.png"
-              description="Never write from scratch again. Go from idea to blog in minutes."
-            />
-            <ProductItem
-              title="Scaling large projects "
-              href="https://userogue.com"
-              src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.47.07%E2%80%AFPM.png"
-              description="Respond to government RFPs, RFIs and RFQs 10x faster using AI"
-            />
-          </div>
-        </MenuItem>
+        <Link href={"/courses"}>
+          <MenuItem setActive={setActive} active={active} item="Courses">
+            <div className="  text-sm grid grid-cols-2 gap-10 p-4">
+              <ProductItem
+                title="Mern Stack"
+                href="https://algochurn.com"
+                src="https://assets.aceternity.com/demos/algochurn.webp"
+                description="Prepare for tech interviews like never before."
+              />
+              <ProductItem
+                title="Tailwind Master"
+                href="https://tailwindmasterkit.com"
+                src="https://assets.aceternity.com/demos/tailwindmasterkit.webp"
+                description="Production ready Tailwind css components for your next project"
+              />
+              <ProductItem
+                title="Advance JavaScript"
+                href="https://gomoonbeam.com"
+                src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.51.31%E2%80%AFPM.png"
+                description="Never write from scratch again. Go from idea to blog in minutes."
+              />
+              <ProductItem
+                title="Scaling large projects "
+                href="https://userogue.com"
+                src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.47.07%E2%80%AFPM.png"
+                description="Respond to government RFPs, RFIs and RFQs 10x faster using AI"
+              />
+            </div>
+          </MenuItem>
+        </Link>
         <Link href={"/about"}>
           <MenuItem setActive={setActive} active={active} item="About">
             <div className="flex flex-col space-y-4 text-sm">
-              <HoveredLink href="/courses">FAQ</HoveredLink>
+              <HoveredLink href="/faq">FAQ</HoveredLink>
               <HoveredLink href="/courses">Policy</HoveredLink>
               <HoveredLink href="/courses">Our Team</HoveredLink>
               <HoveredLink href="/courses">Contact Us</HoveredLink>
             </div>
           </MenuItem>
         </Link>
-        {/* <Link href={'/policy'}>
-          <MenuItem setActive={setActive} active={active} item="Policy"></MenuItem>
-        </Link> */}
-        {/* <Link href={'/faq'}>
-          <MenuItem setActive={setActive} active={active} item="FAQ"></MenuItem>
-        </Link> */}
-        {user ? (
+        {userData ? (
           <Link href={"/profile"}>
             <Image
-              src={user.avatar ? user.avatar.url : avatar}
+              src={userData.avatar ? userData.avatar.url : avatar}
               alt=""
               width={30}
               height={30}
@@ -153,6 +157,7 @@ const Navbar = ({
               setRoute={setRoute}
               activeItem={activeItem}
               component={Login}
+              refetch={refetch}
             />
           )}
         </>

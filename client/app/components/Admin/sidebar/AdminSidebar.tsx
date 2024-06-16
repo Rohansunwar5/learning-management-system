@@ -118,7 +118,7 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Link href="/">
+                <Link href="/admin">
                   <h3 className="text-[25px] font-light dark:text-white text-black">
                     Eduception
                   </h3>

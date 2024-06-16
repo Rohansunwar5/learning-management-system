@@ -288,6 +288,8 @@ export const addAnswer = CatchAsyncError(
       const newAnswer: any = {
         user: req.user?._id, // Assuming req.user is the user object and you want to save only the user ID
         answer,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       // Add this answer to our course content
@@ -385,6 +387,8 @@ export const addReview = CatchAsyncError(
 
       await course?.save();
 
+      await redis.set(courseId, JSON.stringify(course), "EX", 604800);
+
       // const notification = {
       //   title: "New Review Recieved",
       //   message: `${req.user?.name} has left a review on ${course?.name}`
@@ -393,7 +397,7 @@ export const addReview = CatchAsyncError(
       await NotificationModel.create({
         user: req.user?._id,
         title: "New Review Recieved",
-        message: `${req.user?._id} has left a review on  ${course?.name}`,
+        message: `${req.user?.name} has left a review on  ${course?.name}`,
       });
 
       res.status(200).json({
@@ -435,6 +439,8 @@ export const addReplyToReview = CatchAsyncError(
       const replyData: any = {
         user: req.user,
         comment,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (!review.commentReplies) {
@@ -445,6 +451,8 @@ export const addReplyToReview = CatchAsyncError(
       review.commentReplies?.push(replyData);
 
       await course.save();
+
+      await redis.set(courseId, JSON.stringify(course), "EX", 604800);
 
       res.status(200).json({
         success: true,
@@ -514,7 +522,7 @@ export const generateVideoUrl = CatchAsyncError(
           },
         }
       );
-      console.log(response);
+      // console.log(response);
 
       res.json(response.data);
     } catch (error: any) {
